@@ -2,7 +2,7 @@
 
 This plugin adds MiniPlaceholder API support, you can edit some of the strings it will provide to MiniPlaceholders in the config.yml it will generate.
 
-The MiniPlaceholders it provides are "<afkplus_status>", "<afkplus_afktime", "afkplus_totaltimeafk" and "afkplus_playersafk"
+The MiniPlaceholders it provides are "<afkplus_status>", "<afkplus_afktime>", "<afkplus_totaltimeafk>" and "<afkplus_playersafk>"
 
 ### Below is a short description of each placeholder:
 

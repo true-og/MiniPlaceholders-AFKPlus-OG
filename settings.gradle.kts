@@ -1,4 +1,4 @@
-rootProject.name = "MiniPlaceholders-AFKPlus"
+rootProject.name = "MiniPlaceholders-AFKPlus-OG"
 
 // Run the bootstrap at configuration time.
 val process = ProcessBuilder("sh", "bootstrap.sh")

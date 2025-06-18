@@ -4,16 +4,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MiniPlaceholdersAFKPlus extends JavaPlugin {
 
-	@Override
-	public void onEnable() {
+    @Override
+    public void onEnable() {
 
-		saveDefaultConfig();
+        saveDefaultConfig();
 
-		// Register the hook.
-		new MiniPlaceholdersHook(this);
+        // Register the hook.
+        new MiniPlaceholdersHook(this);
 
-		getLogger().info(getName() + " v." + getPluginMeta().getVersion() + " has been enabled!");
-
-	}
-
+        getLogger().info(getName() + " v." + getPluginMeta().getVersion() + " has been enabled!");
+    }
 }

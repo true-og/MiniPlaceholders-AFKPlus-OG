@@ -2,10 +2,6 @@ package net.trueog.miniplaceholdersafkplus;
 
 import java.util.Date;
 import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import net.lapismc.afkplus.api.AFKPlusPlayerAPI;
 import net.lapismc.afkplus.playerdata.AFKPlusPlayer;
 import net.lapismc.afkplus.util.core.utils.prettytime.Duration;
@@ -13,119 +9,106 @@ import net.lapismc.afkplus.util.core.utils.prettytime.PrettyTime;
 import net.lapismc.afkplus.util.core.utils.prettytime.units.JustNow;
 import net.lapismc.afkplus.util.core.utils.prettytime.units.Millisecond;
 import net.trueog.utilitiesog.UtilitiesOG;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 public class MiniPlaceholdersHook {
 
-	private final AFKPlusPlayerAPI api;
-	private final MiniPlaceholdersAFKPlus plugin;
-	private final PrettyTime prettyTime;
+    private final AFKPlusPlayerAPI api;
+    private final MiniPlaceholdersAFKPlus plugin;
+    private final PrettyTime prettyTime;
 
-	public MiniPlaceholdersHook(MiniPlaceholdersAFKPlus plugin) {
+    public MiniPlaceholdersHook(MiniPlaceholdersAFKPlus plugin) {
 
-		this.plugin = plugin;
+        this.plugin = plugin;
 
-		api = new AFKPlusPlayerAPI();
-		prettyTime = new PrettyTime();
-		prettyTime.removeUnit(JustNow.class);
-		prettyTime.removeUnit(Millisecond.class);
+        api = new AFKPlusPlayerAPI();
+        prettyTime = new PrettyTime();
+        prettyTime.removeUnit(JustNow.class);
+        prettyTime.removeUnit(Millisecond.class);
 
-		// Register MiniPlaceholders.
-		registerPlaceholders();
+        // Register MiniPlaceholders.
+        registerPlaceholders();
+    }
 
-	}
+    private void registerPlaceholders() {
 
-	private void registerPlaceholders() {
+        UtilitiesOG.registerAudiencePlaceholder("afkplus_status", player -> {
+            AFKPlusPlayer afkPlayer = api.getPlayer(player);
 
-		UtilitiesOG.registerAudiencePlaceholder("afkplus_status", player -> {
+            return afkPlayer.isAFK()
+                    ? plugin.getConfig().getString("status.true")
+                    : plugin.getConfig().getString("status.false");
+        });
 
-			AFKPlusPlayer afkPlayer = api.getPlayer(player);
+        UtilitiesOG.registerAudiencePlaceholder("afkplus_afktime", player -> {
+            AFKPlusPlayer p = api.getPlayer(player);
+            Long afkStart = p.getAFKStart();
+            if (afkStart == null) {
 
-			return afkPlayer.isAFK() ? plugin.getConfig().getString("status.true") : plugin.getConfig().getString("status.false");
+                return plugin.getConfig().getString("afktime.notafk");
+            }
 
-		});
+            List<Duration> totalTimeDurations =
+                    reduceDurationList(prettyTime.calculatePreciseDuration(new Date(afkStart)));
 
-		UtilitiesOG.registerAudiencePlaceholder("afkplus_afktime", player -> {
+            return prettyTime.formatDuration(totalTimeDurations);
+        });
 
-			AFKPlusPlayer p = api.getPlayer(player);
-			Long afkStart = p.getAFKStart();
-			if (afkStart == null) {
+        UtilitiesOG.registerAudiencePlaceholder("afkplus_totaltimeafk", player -> {
+            AFKPlusPlayer p = api.getPlayer(player);
+            long totalTime = p.getTotalTimeAFK();
+            if (totalTime <= 0) {
 
-				return plugin.getConfig().getString("afktime.notafk");
+                return plugin.getConfig().getString("totaltimeafk.none");
+            }
 
-			}
+            Date timeInPast = new Date(System.currentTimeMillis() - totalTime);
 
-			List<Duration> totalTimeDurations = reduceDurationList(prettyTime.calculatePreciseDuration(new Date(afkStart)));
+            List<Duration> totalTimeDurations = reduceDurationList(prettyTime.calculatePreciseDuration(timeInPast));
 
-			return prettyTime.formatDuration(totalTimeDurations);
+            return prettyTime.formatDuration(totalTimeDurations);
+        });
 
-		});
+        UtilitiesOG.registerGlobalPlaceholder("afkplus_playersafk", () -> {
+            int AFKPlayerCount = 0;
+            for (Player p : Bukkit.getOnlinePlayers()) {
 
-		UtilitiesOG.registerAudiencePlaceholder("afkplus_totaltimeafk", player -> {
+                if (api.getPlayer(p.getUniqueId()).isAFK()) {
 
-			AFKPlusPlayer p = api.getPlayer(player);
-			long totalTime = p.getTotalTimeAFK();
-			if (totalTime <= 0) {
+                    AFKPlayerCount++;
+                }
+            }
 
-				return plugin.getConfig().getString("totaltimeafk.none");
+            if (AFKPlayerCount == 0) {
 
-			}
+                return plugin.getConfig().getString("PlayersCurrentlyAFK.Zero");
 
-			Date timeInPast = new Date(System.currentTimeMillis() - totalTime);
+            } else {
 
-			List<Duration> totalTimeDurations = reduceDurationList(prettyTime.calculatePreciseDuration(timeInPast));
+                return String.valueOf(AFKPlayerCount);
+            }
+        });
+    }
 
-			return prettyTime.formatDuration(totalTimeDurations);
+    private List<Duration> reduceDurationList(List<Duration> durationList) {
 
-		});
+        while (durationList.size() > plugin.getConfig().getInt("TotalTimeAFK.numberOfTimeUnits")) {
 
-		UtilitiesOG.registerGlobalPlaceholder("afkplus_playersafk", () -> {
+            Duration smallest = null;
+            for (Duration current : durationList) {
 
-			int AFKPlayerCount = 0;
-			for (Player p : Bukkit.getOnlinePlayers()) {
+                if (smallest == null
+                        || smallest.getUnit().getMillisPerUnit()
+                                > current.getUnit().getMillisPerUnit()) {
 
-				if (api.getPlayer(p.getUniqueId()).isAFK()) {
+                    smallest = current;
+                }
+            }
 
-					AFKPlayerCount++;
-				}
+            durationList.remove(smallest);
+        }
 
-			}
-
-			if (AFKPlayerCount == 0) {
-
-				return plugin.getConfig().getString("PlayersCurrentlyAFK.Zero");
-
-			}
-			else {
-
-				return String.valueOf(AFKPlayerCount);
-
-			}
-
-		});
-
-	}
-
-	private List<Duration> reduceDurationList(List<Duration> durationList) {
-
-		while (durationList.size() > plugin.getConfig().getInt("TotalTimeAFK.numberOfTimeUnits")) {
-
-			Duration smallest = null;
-			for (Duration current : durationList) {
-
-				if (smallest == null || smallest.getUnit().getMillisPerUnit() > current.getUnit().getMillisPerUnit()) {
-
-					smallest = current;
-
-				}
-
-			}
-
-			durationList.remove(smallest);
-
-		}
-
-		return durationList;
-
-	}
-
+        return durationList;
+    }
 }

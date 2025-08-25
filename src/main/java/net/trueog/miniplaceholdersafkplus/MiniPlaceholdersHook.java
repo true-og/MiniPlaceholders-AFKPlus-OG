@@ -29,38 +29,45 @@ public class MiniPlaceholdersHook {
 
         // Register MiniPlaceholders.
         registerPlaceholders();
+
     }
 
     private void registerPlaceholders() {
 
         UtilitiesOG.registerAudiencePlaceholder("afkplus_status", player -> {
+
             AFKPlusPlayer afkPlayer = api.getPlayer(player);
 
-            return afkPlayer.isAFK()
-                    ? plugin.getConfig().getString("status.true")
+            return afkPlayer.isAFK() ? plugin.getConfig().getString("status.true")
                     : plugin.getConfig().getString("status.false");
+
         });
 
         UtilitiesOG.registerAudiencePlaceholder("afkplus_afktime", player -> {
+
             AFKPlusPlayer p = api.getPlayer(player);
             Long afkStart = p.getAFKStart();
             if (afkStart == null) {
 
                 return plugin.getConfig().getString("afktime.notafk");
+
             }
 
-            List<Duration> totalTimeDurations =
-                    reduceDurationList(prettyTime.calculatePreciseDuration(new Date(afkStart)));
+            List<Duration> totalTimeDurations = reduceDurationList(
+                    prettyTime.calculatePreciseDuration(new Date(afkStart)));
 
             return prettyTime.formatDuration(totalTimeDurations);
+
         });
 
         UtilitiesOG.registerAudiencePlaceholder("afkplus_totaltimeafk", player -> {
+
             AFKPlusPlayer p = api.getPlayer(player);
             long totalTime = p.getTotalTimeAFK();
             if (totalTime <= 0) {
 
                 return plugin.getConfig().getString("totaltimeafk.none");
+
             }
 
             Date timeInPast = new Date(System.currentTimeMillis() - totalTime);
@@ -68,16 +75,20 @@ public class MiniPlaceholdersHook {
             List<Duration> totalTimeDurations = reduceDurationList(prettyTime.calculatePreciseDuration(timeInPast));
 
             return prettyTime.formatDuration(totalTimeDurations);
+
         });
 
         UtilitiesOG.registerGlobalPlaceholder("afkplus_playersafk", () -> {
+
             int AFKPlayerCount = 0;
             for (Player p : Bukkit.getOnlinePlayers()) {
 
                 if (api.getPlayer(p.getUniqueId()).isAFK()) {
 
                     AFKPlayerCount++;
+
                 }
+
             }
 
             if (AFKPlayerCount == 0) {
@@ -87,8 +98,11 @@ public class MiniPlaceholdersHook {
             } else {
 
                 return String.valueOf(AFKPlayerCount);
+
             }
+
         });
+
     }
 
     private List<Duration> reduceDurationList(List<Duration> durationList) {
@@ -98,17 +112,20 @@ public class MiniPlaceholdersHook {
             Duration smallest = null;
             for (Duration current : durationList) {
 
-                if (smallest == null
-                        || smallest.getUnit().getMillisPerUnit()
-                                > current.getUnit().getMillisPerUnit()) {
+                if (smallest == null || smallest.getUnit().getMillisPerUnit() > current.getUnit().getMillisPerUnit()) {
 
                     smallest = current;
+
                 }
+
             }
 
             durationList.remove(smallest);
+
         }
 
         return durationList;
+
     }
+
 }

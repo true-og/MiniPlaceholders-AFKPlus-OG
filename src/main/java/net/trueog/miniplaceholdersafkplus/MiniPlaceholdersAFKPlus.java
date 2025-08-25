@@ -13,5 +13,7 @@ public final class MiniPlaceholdersAFKPlus extends JavaPlugin {
         new MiniPlaceholdersHook(this);
 
         getLogger().info(getName() + " v." + getPluginMeta().getVersion() + " has been enabled!");
+
     }
+
 }

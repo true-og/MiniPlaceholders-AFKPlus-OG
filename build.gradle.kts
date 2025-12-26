@@ -51,7 +51,6 @@ repositories {
 /* ---------------------- Java project deps ---------------------------- */
 dependencies {
     compileOnly("org.purpurmc.purpur:purpur-api:1.19.4-R0.1-SNAPSHOT") // Declare Purpur API version to be packaged.
-    compileOnly("io.github.miniplaceholders:miniplaceholders-api:2.2.3") // Import MiniPlaceholders API.
     compileOnly("net.lapismc:AFKPlus:3.4.5") // Import AFKPlus API..
     implementation("org.ocpsoft.prettytime:prettytime:5.0.8.Final") // Import PrettyTime API.
     compileOnlyApi(project(":libs:Utilities-OG")) // Import TrueOG Network Utilities-OG Java API (from source).
@@ -68,7 +67,8 @@ tasks.withType<AbstractArchiveTask>().configureEach { // Ensure reproducible .ja
 /* ----------------------------- Shadow -------------------------------- */
 tasks.shadowJar {
     exclude("io.github.miniplaceholders.*") // Exclude the MiniPlaceholders package from being shadowed.
-    relocate("org.ocpsoft.prettytime", "net.lapismc.afkplus.util.prettytime") // Relocate PrettyTime.
+    isEnableRelocation = true
+    relocationPrefix = "${project.group}.shadow"
     archiveClassifier.set("") // Use empty string instead of null.
     minimize()
 }

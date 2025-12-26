@@ -1,4 +1,4 @@
-name: MiniPlaceholders-AFKPlus
+name: MiniPlaceholders-AFKPlus-OG
 version: '${version}'
 main: net.trueog.miniplaceholdersafkplus.MiniPlaceholdersAFKPlus
 api-version: '${apiVersion}'
